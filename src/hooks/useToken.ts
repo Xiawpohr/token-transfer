@@ -36,7 +36,7 @@ export default function useToken(token: string) {
             if (!stale) {
               setName('')
               setSymbol('')
-              setDecimals(0)
+              setDecimals(18)
               setIsValid(false)
             }
           })
