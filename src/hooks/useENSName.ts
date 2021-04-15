@@ -26,16 +26,15 @@ const useENSName = (address: string | undefined) => {
   const { library: provider } = useActiveWeb3React()
   const [ensName, setEnsName] = useState('')
   const [ensCache, setEnsCache] = useLocalStorage(`ensCache_${address}`)
-  const count = useRef(0)
+  const prevAddress = useRef(address)
   
   useEffect(() => {
     if(ensCache && ensCache.timestamp>Date.now()){
       setEnsName(ensCache.name)
     } else {
       if (provider && address) {
-        const localCount = count.current
         lookupAddress(provider, address).then((name) => {
-          if (name && localCount === count.current) {
+          if (name && prevAddress.current === address) {
             setEnsName(name)
             setEnsCache({
               timestamp:Date.now()+360000,
@@ -49,7 +48,7 @@ const useENSName = (address: string | undefined) => {
         setEnsName('')
       }
     }
-    count.current++
+    prevAddress.current = address
   }, [ensCache, provider, address, setEnsName, setEnsCache])
 
   return ensName
