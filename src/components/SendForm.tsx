@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { parseUnits } from '@ethersproject/units'
 import Grid from '@material-ui/core/Grid'
@@ -6,7 +6,6 @@ import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
-import CircularProgress from '@material-ui/core/CircularProgress'
 import TokenSelector from './TokenSelector'
 import NumberInput from './NumberInput'
 import { useActiveWeb3React } from '../hooks'
@@ -32,8 +31,6 @@ export default function SendForm() {
 
   const track = useTransactionTracker(chainId)
 
-  const [loading, setLoading] = useState(false)
-
   const send = async (data: IFormInputs) => {
     if (account && library) {
       const token = data.token
@@ -47,17 +44,12 @@ export default function SendForm() {
         const contract = getTokenContract(token, library, account)
         tx = contract.transfer(data.recipient, value)
       }
-      try {
-        setLoading(true)
-        await track(tx, {
-          signed: `Sending ${data.amount} ${symbol} to ${shortenAddress(data.recipient)}`, 
-          canceled: 'Transaction rejected',
-          succeeded: 'Send succeeded',
-          failed: 'Transaction failed'
-        })
-      } finally {
-        setLoading(false)
-      }
+      await track(tx, {
+        signed: `Sending ${data.amount} ${symbol} to ${shortenAddress(data.recipient)}`, 
+        canceled: 'Transaction rejected',
+        succeeded: 'Send succeeded',
+        failed: 'Transaction failed'
+      })
     }
   }
 
@@ -138,9 +130,9 @@ export default function SendForm() {
                 fullWidth
                 variant='contained'
                 type='submit'
-                disabled={!account || !isValid || loading}
+                disabled={!account || !isValid}
               >
-                {loading ? <CircularProgress size={24} /> : 'send'}
+                Send
               </Button>
             </Grid>
           </Grid>
